@@ -6,11 +6,13 @@ export function TextField({
   label,
   type = 'text',
   placeholder,
+  disabled,
 }: {
   field: AnyFieldApi
   label: string
   type?: string
   placeholder?: string
+  disabled?: boolean
 }) {
   return (
     <FieldShell field={field} label={label}>
@@ -22,6 +24,7 @@ export function TextField({
         value={field.state.value as string}
         onBlur={field.handleBlur}
         onChange={(e) => field.handleChange(e.target.value)}
+        disabled={disabled}
         className="input"
       />
     </FieldShell>

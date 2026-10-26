@@ -13,7 +13,7 @@ export const optionalDate = z
   .string()
   .refine((v) => v === '' || !Number.isNaN(Date.parse(v)), 'Fecha inválida')
 
-export const createUserSchema = z.object({
+/* export const createUserSchema = z.object({
     // Cuenta
     full_name: z.string().trim().min(3, 'Mínimo 3 caracteres'),
     email: z.string().trim().email('Correo inválido'),
@@ -27,11 +27,9 @@ export const createUserSchema = z.object({
     birth_date: optionalDate,
 
     // Estudiante
-    student_code: z.string().trim(),
     admission_date: optionalDate,
 
     // Docente y staff
-    employee_code: z.string().trim(),
     hire_date: optionalDate,
     specialty: z.string().trim(),
     academic_degree: z.string().trim(),
@@ -45,17 +43,11 @@ export const createUserSchema = z.object({
       }
     }
 
-    if (v.role === 'student') required('student_code')
-    if (v.role === 'teacher') {
-      required('employee_code')
-      required('specialty')
-    }
+    if (v.role === 'teacher') required('specialty')
     if (v.role === 'staff') {
-      required('employee_code')
       required('position')
       required('area')
     }
-  })
+  }) */
 
 export type LoginValues = z.infer<typeof loginSchema>
-export type CreateUserValues = z.infer<typeof createUserSchema>

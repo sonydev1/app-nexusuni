@@ -74,7 +74,7 @@ export default function EditUserForm({
         <Section title="Datos del estudiante">
           <div className="grid gap-4 sm:grid-cols-2">
             <form.Field name="student_code">
-              {(f) => <TextField field={f} label="Código estudiantil" />}
+              {(f) => <TextField field={f} label="Código estudiantil" disabled placeholder="Se genera al guardar" />}
             </form.Field>
             <form.Field name="student_status">
               {(f) => <SelectField field={f} label="Estado" options={STUDENT_STATUS_OPTIONS} />}
@@ -90,7 +90,7 @@ export default function EditUserForm({
         <Section title="Datos del docente">
           <div className="grid gap-4 sm:grid-cols-2">
             <form.Field name="teacher_employee_code">
-              {(f) => <TextField field={f} label="Código de empleado" />}
+              {(f) => <TextField field={f} label="Código de empleado" disabled placeholder="Se genera al guardar"/>}
             </form.Field>
             <form.Field name="teacher_hire_date">
               {(f) => <TextField field={f} label="Fecha de contratación (opcional)" type="date" />}
@@ -109,7 +109,7 @@ export default function EditUserForm({
         <Section title="Datos del administrativo">
           <div className="grid gap-4 sm:grid-cols-2">
             <form.Field name="staff_employee_code">
-              {(f) => <TextField field={f} label="Código de empleado" />}
+              {(f) => <TextField field={f} label="Código de empleado" disabled placeholder="Se genera al guardar"/>}
             </form.Field>
             <form.Field name="staff_hire_date">
               {(f) => <TextField field={f} label="Fecha de contratación (opcional)" type="date" />}

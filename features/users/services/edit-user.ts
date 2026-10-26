@@ -46,6 +46,7 @@ export async function getUserForEdit(userId: string): Promise<ReadResult> {
     phone: p.phone ?? '',
     birth_date: p.birth_date ?? '',
 
+    // Los códigos se leen solo para mostrarlos (el formulario los bloquea)
     student_code: s?.student_code ?? '',
     student_admission_date: s?.admission_date ?? '',
     student_status: s?.status ?? 'active',
@@ -108,40 +109,38 @@ export async function updateUser(values: UpdateUserValues): Promise<SaveResult> 
     }
   }
 
-  // 2. Datos por rol. upsert: si la fila no existía (usuarios antiguos), se crea.
-  const duplicate = 'Ya existe una persona con ese código'
+  // 2. Datos por rol.
+  //    El código NO se envía: si la fila existe, conserva el suyo;
+  //    si es un usuario antiguo sin fila, la base genera uno.
   const generic = 'No se pudieron guardar los datos del rol'
 
   if (roles.includes('student')) {
     const { error } = await admin.from('students').upsert({
       user_id: userId,
-      student_code: v.student_code,
       admission_date: nullIfEmpty(v.student_admission_date),
       status: v.student_status,
     })
-    if (error) return { error: error.code === '23505' ? duplicate : generic }
+    if (error) return { error: generic }
   }
 
   if (roles.includes('teacher')) {
     const { error } = await admin.from('teachers').upsert({
       user_id: userId,
-      employee_code: v.teacher_employee_code,
       specialty: nullIfEmpty(v.teacher_specialty),
       academic_degree: nullIfEmpty(v.teacher_academic_degree),
       hire_date: nullIfEmpty(v.teacher_hire_date),
     })
-    if (error) return { error: error.code === '23505' ? duplicate : generic }
+    if (error) return { error: generic }
   }
 
   if (roles.includes('staff')) {
     const { error } = await admin.from('staff').upsert({
       user_id: userId,
-      employee_code: v.staff_employee_code,
       position: nullIfEmpty(v.staff_position),
       area: nullIfEmpty(v.staff_area),
       hire_date: nullIfEmpty(v.staff_hire_date),
     })
-    if (error) return { error: error.code === '23505' ? duplicate : generic }
+    if (error) return { error: generic }
   }
 
   // Layout completo: el nombre también aparece en la sidebar y el dashboard

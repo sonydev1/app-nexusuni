@@ -29,15 +29,17 @@ export async function getUsersData() {
   ])
 
   const statusByUser = new Map(students?.map((s) => [s.user_id, s.status]))
-
+  
+  
   const rolesByUser = new Map<string, string[]>()
   roles?.forEach((r) => {
     rolesByUser.set(r.user_id, [...(rolesByUser.get(r.user_id) ?? []), r.role])
   })
   const profileById = new Map(profiles?.map((p) => [p.id, p]))
   const now = Date.now()
-
+  
   const rows: UserRow[] = authUsers.map((u) => {
+    const userRoles = rolesByUser.get(u.id) ?? []
     const p = profileById.get(u.id)
     const createdAt = p?.created_at ?? new Date(0).toISOString()
     return {
@@ -46,7 +48,7 @@ export async function getUsersData() {
       email: u.email ?? '',
       avatarPath: p?.avatar_path ?? null,
       document: p?.document_number ? `${p.document_type} ${p.document_number}` : '',
-      roles: rolesByUser.get(u.id) ?? [],
+      roles: userRoles,
       createdAt,
       createdLabel: new Date(createdAt).toLocaleDateString('es-CO', {
         day: 'numeric',
@@ -54,7 +56,9 @@ export async function getUsersData() {
         year: 'numeric',
         timeZone: 'America/Bogota',
       }),
-      studentStatus: (statusByUser.get(u.id) as UserRow['studentStatus']) ?? null,
+     studentStatus: userRoles.includes('student')
+  ? ((statusByUser.get(u.id) as UserRow['studentStatus']) ?? null)
+  : null,
       disabled: !!u.banned_until && new Date(u.banned_until).getTime() > now,
     }
   })

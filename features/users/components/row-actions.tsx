@@ -5,6 +5,7 @@ import {
   Loader2,
   MoreHorizontal,
   Pencil,
+  ShieldCheck,
   Trash2,
   UserCheck,
   UserX,
@@ -31,6 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { deleteUserAccount, setUserDisabled } from "../services/manage-user";
 import EditUserDialog from "./edit-user-dialog";
+import ManageRolesDialog from "./manage-roles-dialog";
 
 export default function RowActions({
   userId,
@@ -45,6 +47,7 @@ export default function RowActions({
 }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [rolesOpen, setRolesOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
   function toggleDisabled() {
@@ -91,7 +94,11 @@ export default function RowActions({
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
-
+          <DropdownMenuItem onSelect={() => setRolesOpen(true)}>
+            <ShieldCheck className="mr-2 h-4 w-4" />
+            Gestionar roles
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem disabled={isSelf} onSelect={toggleDisabled}>
             {disabled ? (
               <>
@@ -151,6 +158,14 @@ export default function RowActions({
         name={name}
         open={editOpen}
         onOpenChange={setEditOpen}
+      />
+
+      <ManageRolesDialog
+        userId={userId}
+        name={name}
+        isSelf={isSelf}
+        open={rolesOpen}
+        onOpenChange={setRolesOpen}
       />
     </>
   );
