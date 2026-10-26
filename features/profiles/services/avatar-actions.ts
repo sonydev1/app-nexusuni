@@ -16,7 +16,9 @@ type Result = { error?: string }
 // Devuelve el id del usuario objetivo si quien llama tiene permiso
 async function resolveTarget(requestedId: string | null) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) return { error: 'No autorizado' as const }
 
   const targetId = requestedId || user.id

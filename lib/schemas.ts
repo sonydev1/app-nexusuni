@@ -9,12 +9,11 @@ export const ROLES = ['student', 'teacher', 'staff', 'admin'] as const
 export const DOCUMENT_TYPES = ['CC', 'TI', 'CE', 'PASAPORTE'] as const
 
 // Acepta vacío o una fecha válida (los <input type="date"> dan YYYY-MM-DD)
-const optionalDate = z
+export const optionalDate = z
   .string()
   .refine((v) => v === '' || !Number.isNaN(Date.parse(v)), 'Fecha inválida')
 
-export const createUserSchema = z
-  .object({
+export const createUserSchema = z.object({
     // Cuenta
     full_name: z.string().trim().min(3, 'Mínimo 3 caracteres'),
     email: z.string().trim().email('Correo inválido'),

@@ -43,7 +43,7 @@ function SidebarContent() {
       <div className="space-y-6">
         <div className="flex items-center gap-2 px-3 py-2 font-semibold text-indigo-600 dark:text-indigo-400">
           <GraduationCap className="h-6 w-6" />
-          Universidad
+          NexusUni
         </div>
         <NavLinks />
       </div>

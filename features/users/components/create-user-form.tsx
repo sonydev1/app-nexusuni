@@ -5,7 +5,11 @@ import { useForm } from "@tanstack/react-form";
 import { AlertCircle, CheckCircle2, Loader2, UserPlus } from "lucide-react";
 import { SelectField, TextField } from "@/components/form/fields";
 import { createUserSchema, type CreateUserValues } from "@/lib/schemas";
-import { createUser, type CreateUserResult } from "./actions";
+import { createUser, type CreateUserResult } from "../services/create-user";
+import { Button } from "@/components/ui/button";
+import { DOCUMENT_OPTIONS } from "@/lib/options";
+import Section from "@/components/form/section";
+
 
 const defaultValues: CreateUserValues = {
   full_name: "",
@@ -32,7 +36,7 @@ const ROLE_OPTIONS = [
   { value: "staff", label: "Administrativo" },
   { value: "admin", label: "Administrador" },
 ];
-
+/*
 const DOCUMENT_OPTIONS = [
   { value: "CC", label: "Cédula de ciudadanía" },
   { value: "TI", label: "Tarjeta de identidad" },
@@ -56,7 +60,7 @@ function Section({
     </fieldset>
   );
 }
-
+*/
 export default function CreateUserForm({
   onSuccess,
 }: {
@@ -256,10 +260,10 @@ export default function CreateUserForm({
       <form.Subscribe selector={(s) => s.isSubmitting}>
         {(isSubmitting) => (
           <div className="sticky -bottom-4 -mx-4 -mb-4 border-t border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900 sm:-bottom-6 sm:-mx-6 sm:-mb-6 sm:px-6">
-            <button disabled={isSubmitting} className="btn-primary">
+            <Button disabled={isSubmitting} className="w-full">
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {isSubmitting ? "Creando..." : "Crear usuario"}
-            </button>
+            </Button>
           </div>
         )}
       </form.Subscribe>
