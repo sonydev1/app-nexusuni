@@ -15,6 +15,7 @@ import { getUserForEdit } from '../services/edit-user'
 import { removeRole } from '../services/manage-roles'
 import type { EditUserData } from '../types/user-types'
 import AddRoleForm from './add-role-form'
+import { FormSkeleton } from '@/components/skeleton';
 
 type LoadState = { data: EditUserData } | { error: string } | null
 
@@ -35,7 +36,13 @@ function RolesManager({ userId, isSelf }: { userId: string; isSelf: boolean }) {
   }, [userId, version])
 
   if (!state) {
-    return <div className="h-48 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800" />
+    return( <FormSkeleton
+      label="Cargando roles…"
+      sections={[
+        { kind: 'list', title: true, rows: 2, note: true },
+        { title: true, fields: 1, columns: 1 },
+      ]}
+    />)
   }
   if ('error' in state) {
     return <div className="alert-error">{state.error}</div>

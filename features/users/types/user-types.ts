@@ -11,6 +11,7 @@ export type UserRow = {
     createdLabel: string
     disabled: boolean
     studentStatus: 'active' | 'inactive' | 'graduated' | null
+    deactivationReason: string | null
   }
 
   export type EditUserData = {

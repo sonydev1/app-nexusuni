@@ -90,7 +90,9 @@ export default function UsersTable({
               <p className="flex items-center gap-2 font-medium">
                 <span className="truncate">{row.original.name}</span>
                 {row.original.disabled && (
-                  <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-normal text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                  <span 
+                   title={row.original.deactivationReason ?? undefined}
+                  className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-normal text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                     Desactivado
                   </span>
                 )}

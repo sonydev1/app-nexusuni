@@ -11,7 +11,14 @@ export async function login(values: LoginValues): Promise<{ error: string } | vo
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithPassword(parsed.data)
 
-  if (error) return { error: 'Correo o contraseña incorrectos' }
+ if (error) {
+  const banned = error.code === 'user_banned' || /banned/i.test(error.message)
+  return {
+    error: banned
+      ? 'Tu cuenta está desactivada. Comunícate con administración.'
+      : 'Correo o contraseña incorrectos',
+  }
+}
 
   redirect('/')
 }

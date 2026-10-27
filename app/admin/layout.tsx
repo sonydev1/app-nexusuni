@@ -10,6 +10,7 @@ import ThemeToggle from "@/components/theme-toggle";
 import { logout } from "../actions";
 import Link from "next/link";
 import Avatar from "@/components/avatar";
+import { PageSkeleton } from "@/components/page-skeletons";
 
 async function AdminGuard({ children }: { children: React.ReactNode }) {
   await connection();
@@ -95,7 +96,7 @@ export default function AdminLayout({
           <ThemeToggle />
         </header>
 
-        <Suspense fallback={<p className="muted p-8 text-sm">Cargando...</p>}>
+        <Suspense fallback={<PageSkeleton />}>
           <AdminGuard>{children}</AdminGuard>
         </Suspense>
       </div>

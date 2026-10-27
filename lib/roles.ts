@@ -11,3 +11,10 @@ export const ROLE_STYLES: Record<string, string> = {
   staff: 'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-400/20',
   admin: 'bg-indigo-50 text-indigo-700 ring-indigo-600/20 dark:bg-indigo-500/10 dark:text-indigo-300 dark:ring-indigo-400/20',
 }
+
+export const ROLE_BAR_COLORS: Record<string, string> = {
+  student: 'bg-sky-500',
+  teacher: 'bg-emerald-500',
+  staff: 'bg-amber-500',
+  admin: 'bg-indigo-500',
+}

@@ -1,12 +1,26 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { Suspense, useActionState, useState } from 'react'
 import { AlertCircle, GraduationCap, Loader2, Lock, Mail } from 'lucide-react'
 import ThemeToggle from '@/components/theme-toggle'
 import { login } from './actions'
 import { useForm } from '@tanstack/react-form'
 import { loginSchema } from '@/lib/schemas'
 import FieldShell from '@/components/form/field-shell'
+
+
+
+
+function DeactivatedNotice() {
+  const params = useSearchParams()
+  if (!params.get('deactivated')) return null
+  return (
+    <div className="alert-error">
+      <AlertCircle className="h-4 w-4 shrink-0" />
+      Tu cuenta fue desactivada. Comunícate con administración.
+    </div>
+  )
+}
 
 export default function LoginPage() {
   const [serverError, setServerError] = useState<string | null>(null)
@@ -66,6 +80,9 @@ export default function LoginPage() {
             }}
             className="space-y-5"
           >
+            <Suspense fallback={null}>
+              <DeactivatedNotice />
+            </Suspense>
             {serverError && (
               <div className="alert-error">
                 <AlertCircle className="h-4 w-4 shrink-0" />

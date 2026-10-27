@@ -30,9 +30,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { deleteUserAccount, setUserDisabled } from "../services/manage-user";
+import { deleteUserAccount, reactivateUser } from "../services/manage-user";
 import EditUserDialog from "./edit-user-dialog";
 import ManageRolesDialog from "./manage-roles-dialog";
+import DeactivateDialog from "./deactivate-dialog";
 
 export default function RowActions({
   userId,
@@ -48,11 +49,12 @@ export default function RowActions({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [rolesOpen, setRolesOpen] = useState(false);
+  const [deactivateOpen, setDeactivateOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
-  function toggleDisabled() {
+  function reactivate() {
     startTransition(async () => {
-      const res = await setUserDisabled(userId, !disabled);
+      const res = await reactivateUser(userId);
       if (res.error) toast.error(res.error);
       else toast.success(res.success);
     });
@@ -99,7 +101,10 @@ export default function RowActions({
             Gestionar roles
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem disabled={isSelf} onSelect={toggleDisabled}>
+          <DropdownMenuItem
+            disabled={isSelf}
+            onSelect={disabled ? reactivate : () => setDeactivateOpen(true)}
+          >
             {disabled ? (
               <>
                 <UserCheck className="mr-2 h-4 w-4" />
@@ -166,6 +171,12 @@ export default function RowActions({
         isSelf={isSelf}
         open={rolesOpen}
         onOpenChange={setRolesOpen}
+      />
+      <DeactivateDialog
+        userId={userId}
+        name={name}
+        open={deactivateOpen}
+        onOpenChange={setDeactivateOpen}
       />
     </>
   );
