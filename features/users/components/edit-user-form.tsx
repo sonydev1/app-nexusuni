@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import Section from '@/components/form/section'
 import { SelectField, TextField } from '@/components/form/fields'
 import { DOCUMENT_OPTIONS, STUDENT_STATUS_OPTIONS } from '@/lib/options'
-import { makeUpdateUserSchema } from '../schemas/users-shema'
+import { makeUpdateUserSchema } from '../schemas/users-schema'
 import { updateUser } from '../services/edit-user'
 import type { EditUserData } from '../types/user-types'
 

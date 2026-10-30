@@ -2,6 +2,7 @@ import "server-only";
 import type { User } from "@supabase/supabase-js";
 import { createAdminClient } from "@/utils/supabase/admin";
 import type { UserRow } from "../types/user-types";
+import { requireAdmin } from "@/lib/auth/require-admin";
 
 async function fetchAllAuthUsers(admin: ReturnType<typeof createAdminClient>) {
   const perPage = 200;
@@ -17,6 +18,7 @@ async function fetchAllAuthUsers(admin: ReturnType<typeof createAdminClient>) {
 }
 
 export async function getUsersData() {
+  if (!(await requireAdmin())) throw new Error('No autorizado')
   const admin = createAdminClient();
 
   const [authUsers, { data: roles }, { data: profiles }, { data: students }] =

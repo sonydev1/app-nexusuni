@@ -13,41 +13,5 @@ export const optionalDate = z
   .string()
   .refine((v) => v === '' || !Number.isNaN(Date.parse(v)), 'Fecha inválida')
 
-/* export const createUserSchema = z.object({
-    // Cuenta
-    full_name: z.string().trim().min(3, 'Mínimo 3 caracteres'),
-    email: z.string().trim().email('Correo inválido'),
-    password: z.string().min(8, 'Mínimo 8 caracteres'),
-    role: z.enum(ROLES),
-
-    // Datos comunes
-    document_type: z.enum(DOCUMENT_TYPES),
-    document_number: z.string().trim().min(5, 'Mínimo 5 caracteres'),
-    phone: z.string().trim(),
-    birth_date: optionalDate,
-
-    // Estudiante
-    admission_date: optionalDate,
-
-    // Docente y staff
-    hire_date: optionalDate,
-    specialty: z.string().trim(),
-    academic_degree: z.string().trim(),
-    position: z.string().trim(),
-    area: z.string().trim(),
-  })
-  .superRefine((v, ctx) => {
-    const required = (field: keyof typeof v) => {
-      if (!v[field]) {
-        ctx.addIssue({ code: 'custom', path: [field], message: 'Campo obligatorio' })
-      }
-    }
-
-    if (v.role === 'teacher') required('specialty')
-    if (v.role === 'staff') {
-      required('position')
-      required('area')
-    }
-  }) */
 
 export type LoginValues = z.infer<typeof loginSchema>

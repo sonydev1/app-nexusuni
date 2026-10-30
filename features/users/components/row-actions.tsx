@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import {
+  KeyRound,
   Loader2,
   MoreHorizontal,
   Pencil,
@@ -34,6 +35,7 @@ import { deleteUserAccount, reactivateUser } from "../services/manage-user";
 import EditUserDialog from "./edit-user-dialog";
 import ManageRolesDialog from "./manage-roles-dialog";
 import DeactivateDialog from "./deactivate-dialog";
+import ResetPasswordDialog from './reset-password-dialog';
 
 export default function RowActions({
   userId,
@@ -51,6 +53,7 @@ export default function RowActions({
   const [rolesOpen, setRolesOpen] = useState(false);
   const [deactivateOpen, setDeactivateOpen] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [resetOpen, setResetOpen] = useState(false);
 
   function reactivate() {
     startTransition(async () => {
@@ -99,6 +102,14 @@ export default function RowActions({
           <DropdownMenuItem onSelect={() => setRolesOpen(true)}>
             <ShieldCheck className="mr-2 h-4 w-4" />
             Gestionar roles
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            disabled={isSelf}
+            onSelect={() => setResetOpen(true)}
+          >
+            <KeyRound className="mr-2 h-4 w-4" />
+            Restablecer contraseña
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -177,6 +188,12 @@ export default function RowActions({
         name={name}
         open={deactivateOpen}
         onOpenChange={setDeactivateOpen}
+      />
+      <ResetPasswordDialog
+        userId={userId}
+        name={name}
+        open={resetOpen}
+        onOpenChange={setResetOpen}
       />
     </>
   );

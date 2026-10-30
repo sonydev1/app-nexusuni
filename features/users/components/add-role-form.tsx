@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { SelectField, TextField } from '@/components/form/fields'
 import { ROLE_LABELS } from '@/lib/roles'
 import { ROLES } from '@/lib/schemas'
-import { addRoleSchema, type AddRoleValues } from '../schemas/users-shema'
+import { addRoleSchema, type AddRoleValues } from '../schemas/users-schema'
 import { addRole } from '../services/manage-roles'
 import type { EditUserData } from '../types/user-types'
 

@@ -3,12 +3,13 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createAdminClient } from '@/utils/supabase/admin'
-import { makeUpdateUserSchema, type UpdateUserValues } from '../schemas/users-shema'
+import { makeUpdateUserSchema, type UpdateUserValues } from '../schemas/users-schema'
 import type { EditUserData } from '../types/user-types'
-import { requireAdmin } from './require-admin'
+import { requireAdmin } from '@/lib/auth/require-admin';
+import { rpcErrorMessage } from './rpc-errors';
+
 
 const idSchema = z.string().uuid()
-const nullIfEmpty = (v: string) => (v.trim() === '' ? null : v.trim())
 
 type ReadResult = { data: EditUserData } | { error: string }
 type SaveResult = { error?: string; success?: string }
@@ -76,7 +77,8 @@ export async function updateUser(values: UpdateUserValues): Promise<SaveResult> 
 
   const admin = createAdminClient()
 
-  // Los roles se leen de la base de datos, nunca del cliente
+  // Se leen los roles para validar con el esquema correcto. Si cambian antes de
+  // guardar, la función de Postgres lo vuelve a comprobar dentro de la transacción.
   const { data: roleRows, error: rolesError } = await admin
     .from('user_roles')
     .select('role')
@@ -86,61 +88,17 @@ export async function updateUser(values: UpdateUserValues): Promise<SaveResult> 
 
   const parsed = makeUpdateUserSchema(roles).safeParse(values)
   if (!parsed.success) return { error: parsed.error.issues[0].message }
-  const v = parsed.data
 
-  // 1. Datos comunes
-  const { error: profileError } = await admin
-    .from('profiles')
-    .update({
-      full_name: v.full_name,
-      document_type: v.document_type,
-      document_number: v.document_number,
-      phone: nullIfEmpty(v.phone),
-      birth_date: nullIfEmpty(v.birth_date),
-    })
-    .eq('id', userId)
-
-  if (profileError) {
+  const { error } = await admin.rpc('admin_update_user', {
+    p_user_id: userId,
+    p_data: parsed.data,
+  })
+  if (error) {
     return {
-      error:
-        profileError.code === '23505'
-          ? 'Ya existe un usuario con ese documento'
-          : 'No se pudieron guardar los datos personales',
+      error: rpcErrorMessage(error, 'No se pudieron guardar los cambios', {
+        '23505': 'Ya existe un usuario con ese documento',
+      }),
     }
-  }
-
-  // 2. Datos por rol.
-  //    El código NO se envía: si la fila existe, conserva el suyo;
-  //    si es un usuario antiguo sin fila, la base genera uno.
-  const generic = 'No se pudieron guardar los datos del rol'
-
-  if (roles.includes('student')) {
-    const { error } = await admin.from('students').upsert({
-      user_id: userId,
-      admission_date: nullIfEmpty(v.student_admission_date),
-      status: v.student_status,
-    })
-    if (error) return { error: generic }
-  }
-
-  if (roles.includes('teacher')) {
-    const { error } = await admin.from('teachers').upsert({
-      user_id: userId,
-      specialty: nullIfEmpty(v.teacher_specialty),
-      academic_degree: nullIfEmpty(v.teacher_academic_degree),
-      hire_date: nullIfEmpty(v.teacher_hire_date),
-    })
-    if (error) return { error: generic }
-  }
-
-  if (roles.includes('staff')) {
-    const { error } = await admin.from('staff').upsert({
-      user_id: userId,
-      position: nullIfEmpty(v.staff_position),
-      area: nullIfEmpty(v.staff_area),
-      hire_date: nullIfEmpty(v.staff_hire_date),
-    })
-    if (error) return { error: generic }
   }
 
   // Layout completo: el nombre también aparece en la sidebar y el dashboard

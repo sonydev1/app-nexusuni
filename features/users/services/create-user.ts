@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/utils/supabase/admin'
-import { createUserSchema, type CreateUserValues } from '../schemas/users-shema'
-import { requireAdmin } from './require-admin'
+import { createUserSchema, type CreateUserValues } from '../schemas/users-schema'
+import { requireAdmin } from '@/lib/auth/require-admin';
 
 export type CreateUserResult = { error?: string; success?: string }
 
@@ -48,6 +48,7 @@ export async function createUser(values: CreateUserValues): Promise<CreateUserRe
     document_number: v.document_number,
     phone: nullIfEmpty(v.phone),
     birth_date: nullIfEmpty(v.birth_date),
+     must_change_password: true,
   })
   if (profileError) {
     return rollback(

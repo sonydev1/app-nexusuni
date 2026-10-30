@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { createClient } from '@/utils/supabase/server'
 import { createAdminClient } from '@/utils/supabase/admin'
+import { requireAdmin } from '@/lib/auth/require-admin';
 
 type Result = { error?: string; success?: string }
 
@@ -15,17 +15,6 @@ const reasonSchema = z
 
 const idSchema = z.string().uuid()
 
-// Devuelve el usuario admin que llama, o null si no tiene permiso
-async function requireAdmin() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return null
-
-  const { data: isAdmin } = await supabase.rpc('has_role', { _role: 'admin' })
-  return isAdmin ? user : null
-}
 
 export async function deleteUserAccount(userId: string): Promise<Result> {
   const caller = await requireAdmin()

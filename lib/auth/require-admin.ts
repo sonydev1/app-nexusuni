@@ -1,8 +1,9 @@
 import 'server-only'
+import { cache } from 'react'
 import { createClient } from '@/utils/supabase/server'
 
-// Devuelve el usuario que llama si es admin; si no, null
-export async function requireAdmin() {
+// Devuelve el usuario que llama si es admin activo; si no, null
+export const requireAdmin = cache(async () => {
   const supabase = await createClient()
   const {
     data: { user },
@@ -11,4 +12,4 @@ export async function requireAdmin() {
 
   const { data: isAdmin } = await supabase.rpc('has_role', { _role: 'admin' })
   return isAdmin ? user : null
-}
+})

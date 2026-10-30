@@ -2,6 +2,7 @@ import 'server-only'
 import { connection } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import type { ProfileData } from '../types/profile-types'
+import { redirect } from 'next/navigation';
 
 export async function getProfileData(): Promise<ProfileData | null> {
   await connection()
@@ -16,10 +17,13 @@ export async function getProfileData(): Promise<ProfileData | null> {
     supabase.from('user_roles').select('role').eq('user_id', user.id),
     supabase
       .from('profiles')
-      .select('full_name, avatar_path, document_type, document_number, phone, birth_date')
+      .select('full_name, avatar_path, document_type, document_number, phone, birth_date, deactivated_at, must_change_password')
       .eq('id', user.id)
       .single(),
   ])
+
+  if (profile?.deactivated_at) redirect('/auth/deactivated')
+if (profile?.must_change_password) redirect('/change-password')
 
   return {
     id: user.id,

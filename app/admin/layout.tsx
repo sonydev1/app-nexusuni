@@ -89,7 +89,7 @@ export default function AdminLayout({
             </MobileMenu>
             <span className="flex items-center gap-1.5 font-semibold text-indigo-600 dark:text-indigo-400">
               <GraduationCap className="h-5 w-5" />
-              Universidad
+              NexusUni
             </span>
           </div>
           <div className="hidden md:block" />

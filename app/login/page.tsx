@@ -1,40 +1,38 @@
-'use client'
+"use client";
 
-import { Suspense, useActionState, useState } from 'react'
-import { AlertCircle, GraduationCap, Loader2, Lock, Mail } from 'lucide-react'
-import ThemeToggle from '@/components/theme-toggle'
-import { login } from './actions'
-import { useForm } from '@tanstack/react-form'
-import { loginSchema } from '@/lib/schemas'
-import FieldShell from '@/components/form/field-shell'
-
-
-
+import { Suspense, useState } from "react";
+import { AlertCircle, GraduationCap, Loader2, Lock, Mail } from "lucide-react";
+import ThemeToggle from "@/components/theme-toggle";
+import { login } from "./actions";
+import { useForm } from "@tanstack/react-form";
+import { loginSchema } from "@/lib/schemas";
+import FieldShell from "@/components/form/field-shell";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 function DeactivatedNotice() {
-  const params = useSearchParams()
-  if (!params.get('deactivated')) return null
+  const params = useSearchParams();
+  if (!params.get("deactivated")) return null;
   return (
     <div className="alert-error">
       <AlertCircle className="h-4 w-4 shrink-0" />
       Tu cuenta fue desactivada. Comunícate con administración.
     </div>
-  )
+  );
 }
 
 export default function LoginPage() {
-  const [serverError, setServerError] = useState<string | null>(null)
-
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm({
-    defaultValues: { email: '', password: '' },
+    defaultValues: { email: "", password: "" },
     validators: { onSubmit: loginSchema },
     onSubmit: async ({ value }) => {
-      setServerError(null)
-      const res = await login(value)
-      if (res?.error) setServerError(res.error)
+      setServerError(null);
+      const res = await login(value);
+      if (res?.error) setServerError(res.error);
     },
-  })
+  });
 
   return (
     <main className="relative grid min-h-screen lg:grid-cols-2">
@@ -44,7 +42,7 @@ export default function LoginPage() {
       <section className="hidden flex-col justify-between bg-gradient-to-br from-indigo-600 via-indigo-700 to-slate-900 p-12 text-white lg:flex">
         <div className="flex items-center gap-2 text-lg font-semibold">
           <GraduationCap className="h-7 w-7" />
-         NexusUni
+          NexusUni
         </div>
         <div className="space-y-4">
           <h2 className="text-4xl font-bold leading-tight">
@@ -53,7 +51,8 @@ export default function LoginPage() {
             en un solo lugar.
           </h2>
           <p className="max-w-md text-indigo-100">
-            Matrículas, cursos, notas y horarios para estudiantes, docentes y personal administrativo.
+            Matrículas, cursos, notas y horarios para estudiantes, docentes y
+            personal administrativo.
           </p>
         </div>
         <p className="text-sm text-indigo-200">© Universidad</p>
@@ -68,15 +67,17 @@ export default function LoginPage() {
               <span className="font-semibold">NexusUni</span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight">Bienvenido</h1>
-            <p className="muted text-sm">Ingresa con tu cuenta institucional para continuar.</p>
+            <p className="muted text-sm">
+              Ingresa con tu cuenta institucional para continuar.
+            </p>
           </div>
 
           <form
             noValidate
             onSubmit={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              form.handleSubmit()
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit();
             }}
             className="space-y-5"
           >
@@ -131,12 +132,23 @@ export default function LoginPage() {
                 </FieldShell>
               )}
             </form.Field>
+            <div className="flex items-center justify-between">
+              <label htmlFor="password" className="text-sm font-medium">
+                Contraseña
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
 
             <form.Subscribe selector={(s) => s.isSubmitting}>
               {(isSubmitting) => (
                 <button disabled={isSubmitting} className="btn-primary">
                   {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {isSubmitting ? 'Entrando...' : 'Entrar'}
+                  {isSubmitting ? "Entrando..." : "Entrar"}
                 </button>
               )}
             </form.Subscribe>
@@ -148,5 +160,5 @@ export default function LoginPage() {
         </div>
       </section>
     </main>
-  )
+  );
 }

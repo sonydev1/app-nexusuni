@@ -2,6 +2,7 @@ import 'server-only'
 import { createAdminClient } from '@/utils/supabase/admin'
 import { ROLES } from '@/lib/schemas'
 import type { DashboardData } from '../types/dashboard-types'
+import { requireAdmin } from '@/lib/auth/require-admin';
 
 const head = { count: 'exact', head: true } as const
 
@@ -18,27 +19,15 @@ function bogotaMonthStart() {
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
+  if (!(await requireAdmin())) throw new Error('No autorizado')
   const admin = createAdminClient()
 
   // Solo cuenta como "activo" quien todavía tiene el rol de estudiante:
   // al quitar un rol sus datos se conservan, y no deben inflar el conteo.
-  async function countActiveStudents() {
-    const { data: studentRoles } = await admin
-      .from('user_roles')
-      .select('user_id')
-      .eq('role', 'student')
-
-    const ids = (studentRoles ?? []).map((r) => r.user_id)
-    if (ids.length === 0) return 0
-
-    const { count } = await admin
-      .from('students')
-      .select('*', head)
-      .eq('status', 'active')
-      .in('user_id', ids)
-    return count ?? 0
-  }
-
+ async function countActiveStudents() {
+  const { data } = await admin.rpc('count_active_students')
+  return Number(data ?? 0)
+}
   const [total, thisMonth, activeStudents, recent, ...roleResults] = await Promise.all([
     admin.from('profiles').select('*', head),
     admin.from('profiles').select('*', head).gte('created_at', bogotaMonthStart()),

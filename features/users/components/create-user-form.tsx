@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import Section from '@/components/form/section'
 import { SelectField, TextField } from '@/components/form/fields'
 import { DOCUMENT_OPTIONS } from '@/lib/options'
-import { createUserSchema, type CreateUserValues } from '../schemas/users-shema'
+import { createUserSchema, type CreateUserValues } from '../schemas/users-schema'
 import { createUser } from '../services/create-user'
 
 const defaultValues: CreateUserValues = {

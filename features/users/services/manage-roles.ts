@@ -3,15 +3,15 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createAdminClient } from '@/utils/supabase/admin'
-import { addRoleSchema, type AddRoleValues } from '../schemas/users-shema'
-import { requireAdmin } from './require-admin'
+import { requireAdmin } from '@/lib/auth/require-admin'
 import { ROLES } from '@/lib/schemas'
+import { addRoleSchema, type AddRoleValues } from '../schemas/users-schema'
+import { rpcErrorMessage } from './rpc-errors'
 
 type Result = { error?: string; success?: string }
 
 const idSchema = z.string().uuid()
 const roleSchema = z.enum(ROLES)
-const nullIfEmpty = (v: string) => (v.trim() === '' ? null : v.trim())
 
 export async function addRole(values: AddRoleValues): Promise<Result> {
   if (!(await requireAdmin())) return { error: 'No autorizado' }
@@ -21,71 +21,12 @@ export async function addRole(values: AddRoleValues): Promise<Result> {
   const v = parsed.data
 
   const admin = createAdminClient()
-
-  const { data: current, error: readError } = await admin
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', v.user_id)
-  if (readError) return { error: 'No se pudieron leer los roles' }
-  if (current?.some((r) => r.role === v.role)) {
-    return { error: 'La persona ya tiene ese rol' }
-  }
-
-  // 1. Datos propios del rol.
-  //    El código NO se envía: si la fila se conservó de antes, el upsert
-  //    mantiene el código que ya tenía; si es nueva, la base lo genera.
-  let dataError: { code?: string } | null = null
-  let code: string | null = null
-
-  if (v.role === 'student') {
-    const res = await admin
-      .from('students')
-      .upsert({
-        user_id: v.user_id,
-        admission_date: nullIfEmpty(v.student_admission_date),
-        status: 'active', // al volver a ser estudiante, queda activo
-      })
-      .select('student_code')
-      .single()
-    dataError = res.error
-    code = res.data?.student_code ?? null
-  } else if (v.role === 'teacher') {
-    const res = await admin
-      .from('teachers')
-      .upsert({
-        user_id: v.user_id,
-        specialty: nullIfEmpty(v.teacher_specialty),
-        academic_degree: nullIfEmpty(v.teacher_academic_degree),
-        hire_date: nullIfEmpty(v.teacher_hire_date),
-      })
-      .select('employee_code')
-      .single()
-    dataError = res.error
-    code = res.data?.employee_code ?? null
-  } else if (v.role === 'staff') {
-    const res = await admin
-      .from('staff')
-      .upsert({
-        user_id: v.user_id,
-        position: nullIfEmpty(v.staff_position),
-        area: nullIfEmpty(v.staff_area),
-        hire_date: nullIfEmpty(v.staff_hire_date),
-      })
-      .select('employee_code')
-      .single()
-    dataError = res.error
-    code = res.data?.employee_code ?? null
-  }
-
-  if (dataError) {
-    return { error: 'No se pudieron guardar los datos del rol' }
-  }
-
-  // 2. El rol en sí
-  const { error: roleError } = await admin
-    .from('user_roles')
-    .insert({ user_id: v.user_id, role: v.role })
-  if (roleError) return { error: 'No se pudo asignar el rol' }
+  const { data: code, error } = await admin.rpc('admin_add_role', {
+    p_user_id: v.user_id,
+    p_role: v.role,
+    p_data: v,
+  })
+  if (error) return { error: rpcErrorMessage(error, 'No se pudo agregar el rol') }
 
   revalidatePath('/', 'layout')
   return { success: code ? `Rol agregado. Código: ${code}` : 'Rol agregado' }

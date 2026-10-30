@@ -1,4 +1,4 @@
-import { UpdateUserValues } from "../schemas/users-shema"
+import { UpdateUserValues } from "../schemas/users-schema"
 
 export type UserRow = {
     id: string
