@@ -35,7 +35,8 @@ import RoleBadge from "@/components/role-badge";
 import { ROLE_LABELS } from "@/lib/roles";
 import RowActions from "./row-actions";
 
-import type { UserRow } from "../types/user-types"
+import type { UserRow } from "../types/user-types";
+import Link from "next/link";
 
 function SortHeader({
   label,
@@ -70,6 +71,7 @@ export default function UsersTable({
   data: UserRow[];
   currentUserId: string;
 }) {
+  "use no memo";
   const [sorting, setSorting] = useState<SortingState>([
     { id: "createdAt", desc: true },
   ]);
@@ -88,22 +90,29 @@ export default function UsersTable({
             <Avatar name={row.original.name} path={row.original.avatarPath} />
             <div className="min-w-0">
               <p className="flex items-center gap-2 font-medium">
-                <span className="truncate">{row.original.name}</span>
+                <Link
+                  href={`/admin/users/${row.original.id}`}
+                  className="truncate hover:underline"
+                >
+                  {row.original.name}
+                </Link>
                 {row.original.disabled && (
-                  <span 
-                   title={row.original.deactivationReason ?? undefined}
-                  className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-normal text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                  <span
+                    title={row.original.deactivationReason ?? undefined}
+                    className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-normal text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  >
                     Desactivado
                   </span>
                 )}
-                 {row.original.studentStatus === 'inactive' &&(
-                    <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-normal text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+                {row.original.studentStatus === "inactive" && (
+                  <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-normal text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
                     Estudiante inactivo
                   </span>
-                )}{row.original.studentStatus === 'graduated' &&(
+                )}
+                {row.original.studentStatus === "graduated" && (
                   <span className="shrink-0 rounded-full bg-sky-50 px-2 py-0.5 text-xs font-normal text-sky-700 dark:bg-sky-500/10 dark:text-sky-300">
-                  Graduado
-                </span>
+                    Graduado
+                  </span>
                 )}
               </p>
               <p className="muted truncate text-xs">{row.original.email}</p>
@@ -144,7 +153,7 @@ export default function UsersTable({
         id: "actions",
         enableSorting: false,
         enableGlobalFilter: false,
-        header: ({column}) =><SortHeader label="Acciones" column={column} />,
+        header: ({ column }) => <SortHeader label="Acciones" column={column} />,
         cell: ({ row }) => (
           <div className="flex justify-end">
             <RowActions
@@ -159,7 +168,7 @@ export default function UsersTable({
     ],
     [currentUserId],
   );
-
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -185,15 +194,13 @@ export default function UsersTable({
 
   return (
     <div className="card overflow-hidden">
-    
       <div className="flex flex-col gap-3 border-b border-slate-200 p-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="relative sm:w-72">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <Input
-
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-          placeholder="Buscar por nombre, correo o documento"
+            placeholder="Buscar por nombre, correo o documento"
             className="pl-9 "
             aria-label="Buscar usuarios"
           />
@@ -246,7 +253,6 @@ export default function UsersTable({
                 key={row.id}
                 className={row.original.disabled ? "opacity-50" : ""}
               >
-               
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} className="px-4 sm:px-6">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

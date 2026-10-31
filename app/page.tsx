@@ -97,7 +97,7 @@ async function Home() {
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-2 font-semibold text-indigo-600 dark:text-indigo-400">
           <GraduationCap className="h-6 w-6" />
-          Universidad
+          NexusUni
         </div>
         <div className="flex items-center gap-1">
           <ThemeToggle />

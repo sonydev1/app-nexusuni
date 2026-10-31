@@ -1,18 +1,5 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import {
-  KeyRound,
-  Loader2,
-  MoreHorizontal,
-  Pencil,
-  ShieldCheck,
-  Trash2,
-  UserCheck,
-  UserX,
-} from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,23 +19,45 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Eye,
+  KeyRound,
+  Loader2,
+  MoreHorizontal,
+  Pencil,
+  ShieldCheck,
+  Trash2,
+  UserCheck,
+  UserX,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { deleteUserAccount, reactivateUser } from "../services/manage-user";
+import DeactivateDialog from "./deactivate-dialog";
 import EditUserDialog from "./edit-user-dialog";
 import ManageRolesDialog from "./manage-roles-dialog";
-import DeactivateDialog from "./deactivate-dialog";
-import ResetPasswordDialog from './reset-password-dialog';
+import ResetPasswordDialog from "./reset-password-dialog";
 
 export default function RowActions({
   userId,
   name,
   disabled,
   isSelf,
+  showDetail = true,
+  redirectOnDelete = false,
+  triggerLabel,
 }: {
   userId: string;
   name: string;
   disabled: boolean;
   isSelf: boolean;
+  showDetail?: boolean;
+  redirectOnDelete?: boolean;
+  triggerLabel?: string;
 }) {
+  const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [rolesOpen, setRolesOpen] = useState(false);
@@ -67,7 +77,10 @@ export default function RowActions({
     startTransition(async () => {
       const res = await deleteUserAccount(userId);
       if (res.error) toast.error(res.error);
-      else toast.success(res.success);
+      else {
+        toast.success(res.success);
+        if (redirectOnDelete) router.push("/admin/users");
+      }
       setConfirmOpen(false);
     });
   }
@@ -76,23 +89,45 @@ export default function RowActions({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label={`Acciones para ${name}`}
-            disabled={pending}
-          >
-            {pending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <MoreHorizontal className="h-4 w-4" />
-            )}
-          </Button>
+          {triggerLabel ? (
+            <Button variant="outline" disabled={pending}>
+              {pending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <MoreHorizontal className="h-4 w-4" />
+              )}
+              {triggerLabel}
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={`Acciones para ${name}`}
+              disabled={pending}
+            >
+              {pending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <MoreHorizontal className="h-4 w-4" />
+              )}
+            </Button>
+          )}
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className="w-52">
           <DropdownMenuLabel className="truncate">{name}</DropdownMenuLabel>
           <DropdownMenuSeparator />
+          {showDetail && (
+            <>
+            <DropdownMenuItem asChild>
+              <Link href={`/admin/users/${userId}`}>
+                <Eye className="mr-2 h-4 w-4" />
+                Ver detalle
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator/>
+            </>
+          )}
           <DropdownMenuItem onSelect={() => setEditOpen(true)}>
             <Pencil className="mr-2 h-4 w-4" />
             Editar datos

@@ -1,8 +1,12 @@
 import "server-only";
 import type { User } from "@supabase/supabase-js";
 import { createAdminClient } from "@/utils/supabase/admin";
-import type { UserRow } from "../types/user-types";
+import type { UserDetail, UserRow } from "../types/user-types";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import z from "zod";
+import { formatDate } from '@/lib/format-date'
+
+const idSchema = z.string().uuid()
 
 async function fetchAllAuthUsers(admin: ReturnType<typeof createAdminClient>) {
   const perPage = 200;
@@ -83,4 +87,93 @@ export async function getUsersData() {
   });
 
   return { rows, counts };
+}
+
+
+export async function getUserDetail(id: string): Promise<UserDetail | null> {
+  if (!(await requireAdmin())) throw new Error('No autorizado')
+  if (!idSchema.safeParse(id).success) return null
+
+  const admin = createAdminClient()
+
+  const [authRes, profileRes, rolesRes, studentRes, teacherRes, staffRes] = await Promise.all([
+    admin.auth.admin.getUserById(id),
+    admin
+      .from('profiles')
+      .select(
+        'full_name, avatar_path, document_type, document_number, phone, birth_date, ' +
+          'deactivated_at, deactivated_by, deactivation_reason, must_change_password'
+      )
+      .eq('id', id)
+      .maybeSingle(),
+    admin.from('user_roles').select('role').eq('user_id', id),
+    admin.from('students').select('student_code, status, admission_date').eq('user_id', id).maybeSingle(),
+    admin
+      .from('teachers')
+      .select('employee_code, specialty, academic_degree, hire_date')
+      .eq('user_id', id)
+      .maybeSingle(),
+    admin.from('staff').select('employee_code, position, area, hire_date').eq('user_id', id).maybeSingle(),
+  ])
+
+  const authUser = authRes.data?.user
+  const p = profileRes.data
+  if (!authUser || !p) return null
+
+  console.log(p)
+
+  // Quién desactivó la cuenta (puede ser null si esa persona fue eliminada después)
+  let deactivatedBy = ''
+  if (p.deactivated_by) {
+    const { data } = await admin.from('profiles').select('full_name').eq('id', p.deactivated_by).maybeSingle()
+    deactivatedBy = data?.full_name ?? ''
+  }
+
+  const s = studentRes.data
+  const t = teacherRes.data
+  const st = staffRes.data
+
+  const banned = !!authUser.banned_until && new Date(authUser.banned_until).getTime() > Date.now()
+  const disabled = !!p.deactivated_at || banned
+
+  return {
+    id,
+    name: p.full_name ?? 'Sin nombre',
+    email: authUser.email ?? '',
+    avatarPath: p.avatar_path,
+    roles: (rolesRes.data ?? []).map((r) => r.role as string),
+    disabled,
+    mustChangePassword: !!p.must_change_password,
+    document: p.document_number ? `${p.document_type} ${p.document_number}` : '',
+    phone: p.phone ?? '',
+    birthDate: formatDate(p.birth_date),
+    createdLabel: formatDate(authUser.created_at),
+    lastSignIn: formatDate(authUser.last_sign_in_at, { time: true }),
+    deactivation: disabled
+      ? {
+          reason: p.deactivation_reason ?? '',
+          at: formatDate(p.deactivated_at, { time: true }),
+          by: deactivatedBy,
+        }
+      : null,
+    student: s
+      ? { code: s.student_code, status: s.status, admissionDate: formatDate(s.admission_date) }
+      : null,
+    teacher: t
+      ? {
+          code: t.employee_code,
+          specialty: t.specialty ?? '',
+          degree: t.academic_degree ?? '',
+          hireDate: formatDate(t.hire_date),
+        }
+      : null,
+    staff: st
+      ? {
+          code: st.employee_code,
+          position: st.position ?? '',
+          area: st.area ?? '',
+          hireDate: formatDate(st.hire_date),
+        }
+      : null,
+  }
 }
