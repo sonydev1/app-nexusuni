@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
-import { GraduationCap, LogOut } from "lucide-react";
+import { GraduationCap, LogOut,Menu } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 import { getSessionAndRoles } from "@/utils/supabase/roles";
 import NavLinks from "@/components/admin/nav-links";
@@ -11,6 +11,26 @@ import { logout } from "../actions";
 import Link from "next/link";
 import Avatar from "@/components/avatar";
 import { PageSkeleton } from "@/components/page-skeletons";
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/skeleton'
+
+function NavLinksFallback() {
+  return (
+    <div aria-hidden="true" className="space-y-1">
+      {[0, 1].map((i) => (
+        <Skeleton key={i} className="h-9 w-full rounded-lg" />
+      ))}
+    </div>
+  )
+}
+
+function MobileMenuFallback() {
+  return (
+    <Button variant="ghost" size="icon" aria-label="Abrir menú" disabled>
+      <Menu className="h-5 w-5" />
+    </Button>
+  )
+}
 
 async function AdminGuard({ children }: { children: React.ReactNode }) {
   await connection();
@@ -46,7 +66,9 @@ function SidebarContent() {
           <GraduationCap className="h-6 w-6" />
           NexusUni
         </div>
-        <NavLinks />
+        <Suspense fallback={<NavLinksFallback />}>
+          <NavLinks />
+        </Suspense>
       </div>
 
       <div className="space-y-3 border-t border-slate-200 pt-4 dark:border-slate-800">
@@ -84,9 +106,11 @@ export default function AdminLayout({
         {/* Barra superior */}
         <header className="sticky top-0 z-40 flex items-center justify-between border-b border-slate-200 bg-white/90 px-4 py-2 backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
           <div className="flex items-center gap-2 md:hidden">
+           <Suspense fallback={<MobileMenuFallback />}>
             <MobileMenu>
               <SidebarContent />
             </MobileMenu>
+            </Suspense>
             <span className="flex items-center gap-1.5 font-semibold text-indigo-600 dark:text-indigo-400">
               <GraduationCap className="h-5 w-5" />
               NexusUni
