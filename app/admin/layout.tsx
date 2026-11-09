@@ -13,12 +13,18 @@ import Avatar from "@/components/avatar";
 import { PageSkeleton } from "@/components/page-skeletons";
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/skeleton'
+import { NAV_GROUPS } from "@/components/admin/nav-config";
 
 function NavLinksFallback() {
   return (
-    <div aria-hidden="true" className="space-y-1">
-      {[0, 1].map((i) => (
-        <Skeleton key={i} className="h-9 w-full rounded-lg" />
+    <div aria-hidden="true" className="space-y-5">
+      {NAV_GROUPS.map((group, i) => (
+        <div key={i} className="space-y-1">
+          {group.label && <Skeleton className="mx-3 mb-2 h-3 w-16" />}
+          {group.links.map((link) => (
+            <Skeleton key={link.href} className="h-9 w-full rounded-lg" />
+          ))}
+        </div>
       ))}
     </div>
   )

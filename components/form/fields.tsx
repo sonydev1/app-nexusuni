@@ -59,3 +59,33 @@ export function SelectField({
     </FieldShell>
   )
 }
+
+export function TextAreaField({
+  field,
+  label,
+  placeholder,
+  rows = 3,
+  maxLength,
+}: {
+  field: AnyFieldApi
+  label: string
+  placeholder?: string
+  rows?: number
+  maxLength?: number
+}) {
+  return (
+    <FieldShell field={field} label={label}>
+      <textarea
+        id={field.name}
+        name={field.name}
+        rows={rows}
+        maxLength={maxLength}
+        placeholder={placeholder}
+        value={field.state.value as string}
+        onBlur={field.handleBlur}
+        onChange={(e) => field.handleChange(e.target.value)}
+        className="input"
+      />
+    </FieldShell>
+  )
+}

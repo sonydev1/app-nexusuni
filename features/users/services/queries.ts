@@ -120,9 +120,7 @@ export async function getUserDetail(id: string): Promise<UserDetail | null> {
   const p = profileRes.data
   if (!authUser || !p) return null
 
-  console.log(p)
 
-  // Quién desactivó la cuenta (puede ser null si esa persona fue eliminada después)
   let deactivatedBy = ''
   if (p.deactivated_by) {
     const { data } = await admin.from('profiles').select('full_name').eq('id', p.deactivated_by).maybeSingle()

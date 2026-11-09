@@ -1,21 +1,22 @@
-import { cn } from '@/lib/utils'
-import { Skeleton } from './skeleton'
-
-/* ---------- Tarjetas de estadística ---------- */
+import { cn } from "@/lib/utils";
+import { Skeleton } from "./skeleton";
 
 export function StatCardsSkeleton({
   count = 4,
   icon = true,
   className,
 }: {
-  count?: number
-  icon?: boolean // el dashboard lleva ícono; las tarjetas de roles no
-  className?: string // define las columnas: "grid-cols-2 lg:grid-cols-4"
+  count?: number;
+  icon?: boolean;
+  className?: string;
 }) {
   return (
-    <div aria-hidden="true" className={cn('grid gap-3 sm:gap-4', className)}>
+    <div aria-hidden="true" className={cn("grid gap-3 sm:gap-4", className)}>
       {Array.from({ length: count }, (_, i) => (
-        <div key={i} className="card flex items-start justify-between p-4 sm:p-5">
+        <div
+          key={i}
+          className="card flex items-start justify-between p-4 sm:p-5"
+        >
           <div className="space-y-3">
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-8 w-14" />
@@ -24,19 +25,17 @@ export function StatCardsSkeleton({
         </div>
       ))}
     </div>
-  )
+  );
 }
-
-/* ---------- Tabla ---------- */
 
 export type TableColumnSkeleton = {
-  kind: 'user' | 'text' | 'badges' | 'actions'
-  width?: string // solo para 'text'
-}
+  kind: "user" | "title" | "text" | "badges" | "actions";
+  width?: string;
+};
 
 function Cell({ column }: { column: TableColumnSkeleton }) {
   switch (column.kind) {
-    case 'user':
+    case "user":
       return (
         <div className="flex min-w-0 flex-[2] items-center gap-3">
           <Skeleton className="h-9 w-9 shrink-0 rounded-full" />
@@ -45,22 +44,29 @@ function Cell({ column }: { column: TableColumnSkeleton }) {
             <Skeleton className="h-3 w-44 max-w-full" />
           </div>
         </div>
-      )
-    case 'badges':
+      );
+    case "title":
+      return (
+        <div className="min-w-0 flex-[2] space-y-2">
+          <Skeleton className="h-4 w-40 max-w-full" />
+          <Skeleton className="h-3 w-56 max-w-full" />
+        </div>
+      );
+    case "badges":
       return (
         <div className="hidden flex-1 gap-1.5 sm:flex">
           <Skeleton className="h-5 w-16 rounded-full" />
           <Skeleton className="h-5 w-14 rounded-full" />
         </div>
-      )
-    case 'actions':
-      return <Skeleton className="h-8 w-8 shrink-0 rounded-md" />
+      );
+    case "actions":
+      return <Skeleton className="h-8 w-8 shrink-0 rounded-md" />;
     default:
       return (
         <div className="hidden flex-1 sm:block">
-          <Skeleton className={cn('h-4', column.width ?? 'w-24')} />
+          <Skeleton className={cn("h-4", column.width ?? "w-24")} />
         </div>
-      )
+      );
   }
 }
 
@@ -71,14 +77,14 @@ export function TableSkeleton({
   pagination = true,
   className,
 }: {
-  columns: TableColumnSkeleton[]
-  rows?: number
-  toolbar?: boolean // buscador + filtro
-  pagination?: boolean
-  className?: string
+  columns: TableColumnSkeleton[];
+  rows?: number;
+  toolbar?: boolean;
+  pagination?: boolean;
+  className?: string;
 }) {
   return (
-    <div aria-hidden="true" className={cn('card overflow-hidden', className)}>
+    <div aria-hidden="true" className={cn("card overflow-hidden", className)}>
       {toolbar && (
         <div className="flex flex-col gap-3 border-b border-slate-200 p-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <Skeleton className="h-10 w-full rounded-lg sm:w-72" />
@@ -86,18 +92,17 @@ export function TableSkeleton({
         </div>
       )}
 
-      {/* Encabezado de columnas */}
       <div className="flex items-center gap-4 border-b border-slate-200 px-4 py-3 dark:border-slate-800 sm:px-6">
         {columns.map((c, i) => (
           <div
             key={i}
             className={cn(
-              c.kind === 'user' && 'flex-[2]',
-              c.kind === 'actions' && 'w-8 shrink-0',
-              c.kind !== 'user' && c.kind !== 'actions' && 'hidden flex-1 sm:block'
+              (c.kind === "user" || c.kind === "title") && "flex-[2]",
+              c.kind === "actions" && "w-8 shrink-0",
+              c.kind !== "user" && c.kind !== "title" && c.kind !== "actions" && "hidden flex-1 sm:block",
             )}
           >
-            {c.kind !== 'actions' && <Skeleton className="h-3 w-16" />}
+            {c.kind !== "actions" && <Skeleton className="h-3 w-16" />}
           </div>
         ))}
       </div>
@@ -123,21 +128,18 @@ export function TableSkeleton({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-/* ---------- Paneles del dashboard ---------- */
-
-// Lista con avatar (por ejemplo, "Últimos usuarios")
 export function ListPanelSkeleton({
   rows = 6,
   className,
 }: {
-  rows?: number
-  className?: string
+  rows?: number;
+  className?: string;
 }) {
   return (
-    <div aria-hidden="true" className={cn('card overflow-hidden', className)}>
+    <div aria-hidden="true" className={cn("card overflow-hidden", className)}>
       <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4 dark:border-slate-800 sm:px-6">
         <Skeleton className="h-5 w-36" />
         <Skeleton className="h-4 w-20" />
@@ -158,19 +160,18 @@ export function ListPanelSkeleton({
         </div>
       ))}
     </div>
-  )
+  );
 }
 
-// Barras de progreso (por ejemplo, "Usuarios por rol")
 export function BarsPanelSkeleton({
   rows = 4,
   className,
 }: {
-  rows?: number
-  className?: string
+  rows?: number;
+  className?: string;
 }) {
   return (
-    <div aria-hidden="true" className={cn('card p-4 sm:p-6', className)}>
+    <div aria-hidden="true" className={cn("card p-4 sm:p-6", className)}>
       <Skeleton className="h-5 w-32" />
       <Skeleton className="mt-2 h-3 w-56 max-w-full" />
       <div className="mt-5 space-y-4">
@@ -185,9 +186,8 @@ export function BarsPanelSkeleton({
         ))}
       </div>
     </div>
-  )
+  );
 }
-
 
 export function PageSkeleton() {
   return (
@@ -200,5 +200,5 @@ export function PageSkeleton() {
       <StatCardsSkeleton count={4} className="grid-cols-2 lg:grid-cols-4" />
       <Skeleton className="h-72 w-full rounded-xl" />
     </div>
-  )
+  );
 }
