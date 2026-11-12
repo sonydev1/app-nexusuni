@@ -1,12 +1,14 @@
-import type { ProgramLevel } from '../constants'
+import type { ProgramLevel, ProgramModality } from '../constants'
 
 export type ProgramRow = {
   id: string
   code: string
+  sniesCode: string 
   name: string
   departmentId: string
   departmentName: string
   level: ProgramLevel
+  modality: ProgramModality
   durationSemesters: number
   totalCredits: number
   description: string

@@ -12,10 +12,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import StatusBadge from "@/components/status-badge";
-import { PROGRAM_LEVEL_LABELS, PROGRAM_LEVEL_OPTIONS } from "../constants";
+import {
+  PROGRAM_LEVEL_LABELS,
+  PROGRAM_LEVEL_OPTIONS,
+  PROGRAM_MODALITY_LABELS,
+  PROGRAM_MODALITY_OPTIONS,
+} from "../constants";
 import type { DepartmentOption, ProgramRow } from "../types/program-types";
 import ProgramRowActions from "./program-row-actions";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 const normalize = (s: string) =>
@@ -33,30 +38,43 @@ export default function ProgramsTable({
   data: ProgramRow[];
   departments: DepartmentOption[];
 }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [query, setQuery] = useState("");
   const [level, setLevel] = useState("all");
   const [status, setStatus] = useState<StatusFilter>("all");
+  const [modality, setModality] = useState("all");
+  const fromUrl = searchParams.get("department");
+  const departmentId =
+    fromUrl && departments.some((d) => d.id === fromUrl) ? fromUrl : "all";
+
+  function changeDepartment(value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === "all") params.delete("department");
+    else params.set("department", value);
+
+    const qs = params.toString();
+    window.history.replaceState(null, "", qs ? `${pathname}?${qs}` : pathname);
+  }
 
   const rows = useMemo(() => {
     const q = normalize(query.trim());
     return data.filter((p) => {
-    
+      if (departmentId !== "all" && p.departmentId !== departmentId)
+        return false;
       if (level !== "all" && p.level !== level) return false;
       if (status === "active" && !p.isActive) return false;
       if (status === "inactive" && p.isActive) return false;
+      if (modality !== "all" && p.modality !== modality) return false;
       return (
-        !q || normalize(`${p.code} ${p.name} ${p.departmentName}`).includes(q)
+        !q ||
+        normalize(
+          `${p.code} ${p.sniesCode} ${p.name} ${p.departmentName}`,
+        ).includes(q)
       );
     });
-  }, [data, query, level, status]);
-
-  const searchParams = useSearchParams();
-  const [departmentId, setDepartmentId] = useState(() => {
-    const fromUrl = searchParams.get("department");
-    return fromUrl && departments.some((d) => d.id === fromUrl)
-      ? fromUrl
-      : "all";
-  });
+  }, [data, query, level, status, departmentId, modality]);
 
   return (
     <div className="card overflow-hidden">
@@ -75,7 +93,9 @@ export default function ProgramsTable({
         <div className="grid gap-3 sm:grid-cols-3 lg:flex">
           <select
             value={departmentId}
-            onChange={(e) => setDepartmentId(e.target.value)}
+            onChange={(e) => {
+              changeDepartment(e.target.value);
+            }}
             aria-label="Filtrar por departamento"
             className="input lg:w-48"
           >
@@ -95,6 +115,19 @@ export default function ProgramsTable({
           >
             <option value="all">Todos los niveles</option>
             {PROGRAM_LEVEL_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+          <select
+            value={modality}
+            onChange={(e) => setModality(e.target.value)}
+            aria-label="Filtrar por metodología"
+            className="input lg:w-44"
+          >
+            <option value="all">Todas las metodologías</option>
+            {PROGRAM_MODALITY_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>
@@ -142,11 +175,19 @@ export default function ProgramsTable({
                   <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs dark:bg-slate-800">
                     {p.code}
                   </code>
+                  {p.sniesCode && (
+                    <p className="muted mt-1 text-xs">SNIES {p.sniesCode}</p>
+                  )}
                 </TableCell>
                 <TableCell className="px-4 sm:px-6">
                   <div className="min-w-0">
                     <p className="flex items-center gap-2 font-medium">
-                      <Link href={`/admin/programs/${p.id}`} className="truncate hover:underline">{p.name}</Link>
+                      <Link
+                        href={`/admin/programs/${p.id}`}
+                        className="truncate hover:underline"
+                      >
+                        {p.name}
+                      </Link>
                       {!p.isActive && (
                         <StatusBadge className="sm:hidden">
                           Inactiva
@@ -157,9 +198,16 @@ export default function ProgramsTable({
                   </div>
                 </TableCell>
                 <TableCell className="hidden px-4 md:table-cell sm:px-6">
-                  <StatusBadge tone="sky">
-                    {PROGRAM_LEVEL_LABELS[p.level]}
-                  </StatusBadge>
+                  <div className="flex flex-wrap gap-1">
+                    <StatusBadge tone="sky">
+                      {PROGRAM_LEVEL_LABELS[p.level]}
+                    </StatusBadge>
+                    <StatusBadge
+                      tone={p.modality === "virtual" ? "violet" : "slate"}
+                    >
+                      {PROGRAM_MODALITY_LABELS[p.modality]}
+                    </StatusBadge>
+                  </div>
                 </TableCell>
                 <TableCell className="hidden whitespace-nowrap px-4 lg:table-cell sm:px-6">
                   {p.durationSemesters} sem · {p.totalCredits} créd.

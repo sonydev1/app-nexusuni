@@ -4,14 +4,15 @@ import { z } from 'zod'
 import { createAdminClient } from '@/utils/supabase/admin'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { formatDate } from '@/lib/format-date'
-import type { ProgramLevel } from '../constants'
+import type { ProgramLevel, ProgramModality } from '../constants'
 import type { DepartmentOption, ProgramDetail } from '../types/program-types'
 
 const idSchema = z.string().uuid()
 
 const PROGRAM_SELECT =
-  'id, code, name, department_id, level, duration_semesters, total_credits, ' +
-  'description, is_active, created_at, department:departments(code, name, is_active)'
+  'id, code, snies_code, name, department_id, level, modality, duration_semesters, ' +
+  'total_credits, description, is_active, created_at, ' +
+  'department:departments(code, name, is_active)'
 
 type RawDepartment = { code: string; name: string; is_active: boolean }
 type RawProgram = {
@@ -25,6 +26,8 @@ type RawProgram = {
   description: string | null
   is_active: boolean
   created_at: string
+  snies_code: string | null
+  modality: string | null
   department: RawDepartment | RawDepartment[] | null
 }
 
@@ -45,6 +48,8 @@ function toProgram(p: RawProgram): ProgramDetail {
     description: p.description ?? '',
     isActive: p.is_active,
     createdLabel: formatDate(p.created_at),
+    sniesCode: p.snies_code ?? '',
+    modality: p.modality as ProgramModality ,
   }
 }
 

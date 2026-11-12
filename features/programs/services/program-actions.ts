@@ -22,6 +22,9 @@ function dbErrorMessage(error: { code?: string; message: string }) {
     if (error.message.includes('programs_name_level_key')) {
       return 'Ya existe una carrera con ese nombre y nivel'
     }
+    if (error.message.includes('programs_snies_key')) {
+      return 'Ya existe una carrera con ese código SNIES'
+    }
     return 'Ya existe una carrera con esos datos'
   }
   if (error.code === '23503') return 'El departamento ya no existe'
@@ -54,6 +57,8 @@ export async function createProgram(values: ProgramValues): Promise<Result> {
     duration_semesters: Number(v.duration_semesters),
     total_credits: Number(v.total_credits),
     description: nullIfEmpty(v.description),
+    snies_code: nullIfEmpty(v.snies_code),
+    modality: v.modality,
   })
   if (error) return { error: dbErrorMessage(error) ?? 'No se pudo crear la carrera' }
 

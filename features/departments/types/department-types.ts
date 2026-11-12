@@ -4,6 +4,6 @@ export type DepartmentRow = {
     name: string
     description: string
     isActive: boolean
-    programsCount: number
+    programCount: number
     createdLabel: string
   }
