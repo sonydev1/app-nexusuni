@@ -1,4 +1,5 @@
 import {
+    BookOpen,
     Building2,
     GraduationCap,
     LayoutDashboard,
@@ -23,6 +24,7 @@ import {
       links: [
         { href: '/admin/departments', label: 'Departamentos', icon: Building2 },
         { href: '/admin/programs', label: 'Carreras', icon: GraduationCap },
+        { href: '/admin/courses', label: 'Cursos', icon: BookOpen },
       ],
     },
   ]

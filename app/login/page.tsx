@@ -55,7 +55,7 @@ export default function LoginPage() {
             personal administrativo.
           </p>
         </div>
-        <p className="text-sm text-indigo-200">© Universidad</p>
+        <p className="text-sm text-indigo-200">© NexusUni</p>
       </section>
 
       {/* Formulario */}

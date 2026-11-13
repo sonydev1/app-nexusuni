@@ -6,7 +6,7 @@ import { createAdminClient } from '@/utils/supabase/admin'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { ROLES } from '@/lib/schemas'
 import { addRoleSchema, type AddRoleValues } from '../schemas/users-schema'
-import { rpcErrorMessage } from './rpc-errors'
+import { rpcErrorMessage } from '@/lib/rpc-errors'
 
 type Result = { error?: string; success?: string }
 

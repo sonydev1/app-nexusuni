@@ -6,7 +6,7 @@ import { createAdminClient } from '@/utils/supabase/admin'
 import { makeUpdateUserSchema, type UpdateUserValues } from '../schemas/users-schema'
 import type { EditUserData } from '../types/user-types'
 import { requireAdmin } from '@/lib/auth/require-admin';
-import { rpcErrorMessage } from './rpc-errors';
+import { rpcErrorMessage } from '@/lib/rpc-errors';
 
 
 const idSchema = z.string().uuid()

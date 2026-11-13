@@ -96,10 +96,13 @@ export async function updateProgram(values: UpdateProgramValues): Promise<Result
       level: v.level,
       duration_semesters: Number(v.duration_semesters),
       total_credits: Number(v.total_credits),
+      snies_code: nullIfEmpty(v.snies_code),
+      modality: v.modality,
       description: nullIfEmpty(v.description),
     })
     .eq('id', v.id)
   if (error) return { error: dbErrorMessage(error) ?? 'No se pudieron guardar los cambios' }
+  if (!error && !current) return { error: 'La carrera ya no existe' }
 
   revalidatePath('/admin', 'layout')
   return { success: 'Cambios guardados' }
