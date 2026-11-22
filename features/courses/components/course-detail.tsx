@@ -1,22 +1,22 @@
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { connection } from 'next/server'
-import { BookOpen } from 'lucide-react'
-import InfoCard from '@/components/info-card'
-import StatusBadge from '@/components/status-badge'
-import { getDepartmentOptions } from '@/features/programs/services/queries'
-import { getCourseDetail, getCourseOptions } from '../services/queries'
-import type { CourseRef } from '../types/course-types'
-import CourseRowActions from './course-row-actions'
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { connection } from "next/server";
+import InfoCard from "@/components/info-card";
+import StatusBadge from "@/components/status-badge";
+import { getDepartmentOptions } from "@/features/programs/services/queries";
+import { getCourseDetail, getCourseOptions } from "../services/queries";
+import type { CourseRef } from "../types/course-types";
+import CourseRowActions from "./course-row-actions";
+import { PLAN_KIND_LABELS } from "@/features/programs/constants";
 
 function CourseList({
   title,
   items,
   empty,
 }: {
-  title: string
-  items: CourseRef[]
-  empty: string
+  title: string;
+  items: CourseRef[];
+  empty: string;
 }) {
   return (
     <section className="card p-4 sm:p-6">
@@ -41,19 +41,23 @@ function CourseList({
         <p className="muted mt-4 text-sm">{empty}</p>
       )}
     </section>
-  )
+  );
 }
 
-export default async function CourseDetail({ params }: { params: Promise<{ id: string }> }) {
-  await connection()
-  const { id } = await params
+export default async function CourseDetail({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  await connection();
+  const { id } = await params;
 
   const [course, departments, courseOptions] = await Promise.all([
     getCourseDetail(id),
     getDepartmentOptions(),
     getCourseOptions(),
-  ])
-  if (!course) notFound()
+  ]);
+  if (!course) notFound();
 
   return (
     <div className="space-y-6">
@@ -64,11 +68,11 @@ export default async function CourseDetail({ params }: { params: Promise<{ id: s
               {course.code}
             </code>
             <StatusBadge tone="sky">
-              {course.credits} {course.credits === 1 ? 'crédito' : 'créditos'}
+              {course.credits} {course.credits === 1 ? "crédito" : "créditos"}
             </StatusBadge>
             <StatusBadge>{course.weeklyHours} h semanales</StatusBadge>
-            <StatusBadge tone={course.isActive ? 'emerald' : 'slate'}>
-              {course.isActive ? 'Activo' : 'Inactivo'}
+            <StatusBadge tone={course.isActive ? "emerald" : "slate"}>
+              {course.isActive ? "Activo" : "Inactivo"}
             </StatusBadge>
             {!course.departmentActive && (
               <StatusBadge tone="amber">Departamento inactivo</StatusBadge>
@@ -91,11 +95,14 @@ export default async function CourseDetail({ params }: { params: Promise<{ id: s
       <InfoCard
         title="Información general"
         items={[
-          ['Departamento', `${course.departmentCode} · ${course.departmentName}`],
-          ['Créditos', String(course.credits)],
-          ['Horas semanales', String(course.weeklyHours)],
-          ['Creado', course.createdLabel],
-          ['Descripción', course.description],
+          [
+            "Departamento",
+            `${course.departmentCode} · ${course.departmentName}`,
+          ],
+          ["Créditos", String(course.credits)],
+          ["Horas semanales", String(course.weeklyHours)],
+          ["Creado", course.createdLabel],
+          ["Descripción", course.description],
         ]}
       />
 
@@ -113,18 +120,34 @@ export default async function CourseDetail({ params }: { params: Promise<{ id: s
       </div>
 
       <section className="card p-4 sm:p-6">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="font-semibold">Carreras donde aparece</h2>
-          <StatusBadge tone="amber">Próximamente</StatusBadge>
-        </div>
-        <div className="mt-4 flex flex-col items-center gap-2 rounded-lg border border-dashed border-slate-300 px-4 py-8 text-center dark:border-slate-700">
-          <BookOpen className="h-6 w-6 text-slate-400" />
-          <p className="muted max-w-md text-xs">
-            Cuando exista el plan de estudios, aquí verás en qué carreras y semestres se dicta
-            este curso.
+        <h2 className="font-semibold">Carreras donde aparece</h2>
+        {course.programs.length ? (
+          <ul className="mt-4 divide-y divide-slate-100 dark:divide-slate-800">
+            {course.programs.map((p) => (
+              <li key={p.programId}>
+                <Link
+                  href={`/admin/programs/${p.programId}`}
+                  className="flex items-center justify-between gap-3 py-2.5 text-sm hover:underline"
+                >
+                  <span className="flex min-w-0 items-center gap-3">
+                    <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs dark:bg-slate-800">
+                      {p.programCode}
+                    </code>
+                    <span className="truncate">{p.programName}</span>
+                  </span>
+                  <span className="muted shrink-0 text-xs">
+                    Semestre {p.semester} · {PLAN_KIND_LABELS[p.kind]}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="muted mt-4 text-sm">
+            Todavía no está en ningún plan de estudios.
           </p>
-        </div>
+        )}
       </section>
     </div>
-  )
+  );
 }

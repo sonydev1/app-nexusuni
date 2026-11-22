@@ -1,11 +1,13 @@
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { BookOpen } from "lucide-react";
 import InfoCard from "@/components/info-card";
 import StatusBadge from "@/components/status-badge";
 import { PROGRAM_LEVEL_LABELS, PROGRAM_MODALITY_LABELS } from "../constants";
 import { getDepartmentOptions, getProgramDetail } from "../services/queries";
 import ProgramRowActions from "./program-row-actions";
+import { Suspense } from "react";
+import ProgramPlanSkeleton from "./program-plan-skeleton";
+import ProgramPlan from "./program-plan";
 
 export default async function ProgramDetail({
   params,
@@ -74,24 +76,9 @@ export default async function ProgramDetail({
         ]}
       />
 
-      <section className="card p-4 sm:p-6">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="font-semibold">Plan de estudios</h2>
-          <StatusBadge tone="amber">Próximamente</StatusBadge>
-        </div>
-
-        <div className="mt-4 flex flex-col items-center gap-2 rounded-lg border border-dashed border-slate-300 px-4 py-10 text-center dark:border-slate-700">
-          <BookOpen className="h-6 w-6 text-slate-400" />
-          <p className="text-sm font-medium">
-            Todavía no hay cursos en el plan
-          </p>
-          <p className="muted max-w-md text-xs">
-            El plan se arma con los cursos de la carrera, ordenados por
-            semestre. Cuando existan, aquí verás los créditos acumulados frente
-            a la meta de {program.totalCredits}.
-          </p>
-        </div>
-      </section>
+      <Suspense fallback={<ProgramPlanSkeleton />}>
+        <ProgramPlan program={program} />
+      </Suspense>
     </div>
   );
 }

@@ -34,3 +34,18 @@ export const PROGRAM_MODALITY_OPTIONS = PROGRAM_MODALITIES.map((value) => ({
   value,
   label: PROGRAM_MODALITY_LABELS[value],
 }));
+
+
+export const PLAN_KINDS = ['required', 'elective'] as const
+
+export type PlanKind = (typeof PLAN_KINDS)[number]
+
+export const PLAN_KIND_LABELS: Record<PlanKind, string> = {
+  required: 'Obligatorio',
+  elective: 'Electivo',
+}
+
+export const PLAN_KIND_OPTIONS = PLAN_KINDS.map((value) => ({
+  value,
+  label: PLAN_KIND_LABELS[value],
+}))
