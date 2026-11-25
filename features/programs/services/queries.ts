@@ -5,7 +5,7 @@ import { createAdminClient } from '@/utils/supabase/admin'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { formatDate } from '@/lib/format-date'
 import type { ProgramLevel, ProgramModality } from '../constants'
-import type { DepartmentOption, ProgramDetail } from '../types/program-types'
+import type { DepartmentOption, ProgramDetail, ProgramOption } from '../types/program-types'
 
 const idSchema = z.string().uuid()
 
@@ -94,4 +94,37 @@ export async function getProgramDetail(id: string): Promise<ProgramDetail | null
   if (error) throw new Error('No se pudo cargar la carrera')
 
   return data ? toProgram(data as unknown as RawProgram) : null
+}
+
+// Para los selectores de carrera de los formularios de usuarios
+export const getProgramOptions = cache(async (): Promise<ProgramOption[]> => {
+  if (!(await requireAdmin())) throw new Error('No autorizado')
+
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from('programs')
+    .select('id, code, name, is_active')
+    .order('name')
+  if (error) throw new Error('No se pudieron cargar las carreras')
+
+  return (data ?? []).map((p) => ({
+    id: p.id,
+    code: p.code,
+    name: p.name,
+    isActive: p.is_active,
+  }))
+})
+
+// Estudiantes activos (con el rol vigente) de una carrera
+export async function getActiveStudentCount(programId: string): Promise<number> {
+  if (!(await requireAdmin())) throw new Error('No autorizado')
+  if (!idSchema.safeParse(programId).success) return 0
+
+  const admin = createAdminClient()
+  const { data, error } = await admin.rpc('count_active_program_students', {
+    p_program_id: programId,
+  })
+  if (error) throw new Error('No se pudo contar a los estudiantes')
+
+  return Number(data ?? 0)
 }

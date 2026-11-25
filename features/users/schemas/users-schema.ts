@@ -1,4 +1,4 @@
-import { DOCUMENT_TYPES, optionalDate, ROLES } from "@/lib/schemas";
+import { DOCUMENT_TYPES, optionalDate, optionalUuid, ROLES } from "@/lib/schemas";
 import { z } from "zod";
 
 export const STUDENT_STATUSES = ["active", "inactive", "graduated"] as const;
@@ -17,6 +17,7 @@ const baseEditSchema = z.object({
   student_code: z.string().trim(),
   student_admission_date: optionalDate,
   student_status: z.enum(STUDENT_STATUSES),
+  student_program_id: optionalUuid,
 
   // Docente
   teacher_employee_code: z.string().trim(),
@@ -47,6 +48,7 @@ export const createUserSchema = z
 
     // Estudiante
     admission_date: optionalDate,
+    program_id: optionalUuid,
 
     // Docente y administrativo
     hire_date: optionalDate,
@@ -66,6 +68,8 @@ export const createUserSchema = z
       }
     };
 
+    
+    if (v.role === 'student') required('program_id')
     if (v.role === "teacher") required("specialty");
     if (v.role === "staff") {
       required("position");
@@ -86,10 +90,8 @@ export function makeUpdateUserSchema(roles: readonly string[]) {
     };
 
     if (roles.includes("teacher")) required("teacher_specialty");
-    if (roles.includes("staff")) {
-      required("staff_position");
-      required("staff_area");
-    }
+    if (roles.includes("staff")) {required("staff_position");required("staff_area");}
+if (roles.includes("student")) required("student_program_id");
   });
 }
 
@@ -100,6 +102,7 @@ const addRoleBase = z.object({
   // Estudiante
 
   student_admission_date: optionalDate,
+  student_program_id: optionalUuid,
 
   // Docente
 
@@ -130,6 +133,7 @@ export const addRoleSchema = addRoleBase.superRefine((v, ctx) => {
     required("staff_position");
     required("staff_area");
   }
+  if (v.role === "student") required("student_program_id");
 });
 
 export type AddRoleValues = z.infer<typeof addRoleBase>;

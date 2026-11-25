@@ -27,3 +27,10 @@ export type ProgramDetail = ProgramRow & {
   departmentCode: string
   departmentActive: boolean
 }
+
+export type ProgramOption = {
+  id: string
+  code: string
+  name: string
+  isActive: boolean
+}

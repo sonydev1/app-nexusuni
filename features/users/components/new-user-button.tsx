@@ -1,20 +1,21 @@
 'use client'
 
-import { useState } from 'react'
-import { UserPlus } from 'lucide-react'
-import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import CreateUserForm from './create-user-form'
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import { ProgramOption } from '@/features/programs/types/program-types';
+import { UserPlus } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import CreateUserForm from './create-user-form';
 
-export default function NewUserButton() {
+export default function NewUserButton({ programs }: { programs: ProgramOption[] }) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -36,6 +37,7 @@ export default function NewUserButton() {
         </DialogHeader>
 
         <CreateUserForm
+          programs={programs}
           onSuccess={(message) => {
             setOpen(false)
             toast.success(message)

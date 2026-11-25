@@ -13,5 +13,14 @@ export const optionalDate = z
   .string()
   .refine((v) => v === '' || !Number.isNaN(Date.parse(v)), 'Fecha inválida')
 
+export const optionalUuid = z
+  .string()
+  .refine((v) => v === '' || z.string().uuid().safeParse(v).success, 'Carrera inválida')
+
+/* // dentro del z.object de createUserSchema, en la sección "Estudiante":
+program_id: optionalUuid,
+
+// dentro del superRefine:
+if (v.role === 'student') required('program_id') */
 
 export type LoginValues = z.infer<typeof loginSchema>

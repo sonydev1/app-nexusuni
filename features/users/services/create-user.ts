@@ -66,13 +66,14 @@ export async function createUser(values: CreateUserValues): Promise<CreateUserRe
   if (roleError) return rollback('No se pudo asignar el rol')
 
   // 4c. Datos del rol. El código lo genera la base de datos y lo leemos de vuelta.
-  let roleDataError: unknown = null
+  let roleDataError: { code?: string; message: string } | null = null
+
   let code: string | null = null
 
   if (v.role === 'student') {
     const res = await admin
       .from('students')
-      .insert({ user_id: userId, admission_date: nullIfEmpty(v.admission_date) })
+      .insert({ user_id: userId, admission_date: nullIfEmpty(v.admission_date), program_id: v.program_id })
       .select('student_code')
       .single()
     roleDataError = res.error
@@ -105,7 +106,13 @@ export async function createUser(values: CreateUserValues): Promise<CreateUserRe
     code = res.data?.employee_code ?? null
   }
 
-  if (roleDataError) return rollback('No se pudieron guardar los datos del rol')
+ if (roleDataError) {
+  return rollback(
+    roleDataError.code?.startsWith('NX')
+      ? roleDataError.message
+      : 'No se pudieron guardar los datos del rol'
+  )
+}
 
   revalidatePath('/admin/users')
   return {

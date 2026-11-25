@@ -1,12 +1,12 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
-import { createAdminClient } from '@/utils/supabase/admin'
-import { makeUpdateUserSchema, type UpdateUserValues } from '../schemas/users-schema'
-import type { EditUserData } from '../types/user-types'
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { rpcErrorMessage } from '@/lib/rpc-errors';
+import { createAdminClient } from '@/utils/supabase/admin';
+import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
+import { makeUpdateUserSchema, type UpdateUserValues } from '../schemas/users-schema';
+import type { EditUserData } from '../types/user-types';
 
 
 const idSchema = z.string().uuid()
@@ -20,7 +20,7 @@ export async function getUserForEdit(userId: string): Promise<ReadResult> {
 
   const admin = createAdminClient()
 
-  const [profile, roles, student, teacher, staff] = await Promise.all([
+  const [profile, roles, student, teacher, staff, programs] = await Promise.all([
     admin
       .from('profiles')
       .select('full_name, document_type, document_number, phone, birth_date')
@@ -30,6 +30,7 @@ export async function getUserForEdit(userId: string): Promise<ReadResult> {
     admin.from('students').select('*').eq('user_id', userId).maybeSingle(),
     admin.from('teachers').select('*').eq('user_id', userId).maybeSingle(),
     admin.from('staff').select('*').eq('user_id', userId).maybeSingle(),
+    admin.from('programs').select('id, code, name, is_active').order('name'),
   ])
 
   if (!profile.data) return { error: 'Usuario no encontrado' }
@@ -47,10 +48,11 @@ export async function getUserForEdit(userId: string): Promise<ReadResult> {
     phone: p.phone ?? '',
     birth_date: p.birth_date ?? '',
 
-    // Los códigos se leen solo para mostrarlos (el formulario los bloquea)
+
     student_code: s?.student_code ?? '',
     student_admission_date: s?.admission_date ?? '',
     student_status: s?.status ?? 'active',
+    student_program_id: s?.program_id ?? '',
 
     teacher_employee_code: t?.employee_code ?? '',
     teacher_specialty: t?.specialty ?? '',
@@ -64,7 +66,12 @@ export async function getUserForEdit(userId: string): Promise<ReadResult> {
   }
 
   return {
-    data: { roles: (roles.data ?? []).map((r) => r.role as string), values },
+    data: { roles: (roles.data ?? []).map((r) => r.role as string), values, programOptions: (programs.data ?? []).map((p) => ({
+      id: p.id,
+      code: p.code,
+      name: p.name,
+      isActive: p.is_active,
+    })) },
   }
 }
 
