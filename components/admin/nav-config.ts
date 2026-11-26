@@ -1,6 +1,7 @@
 import {
     BookOpen,
     Building2,
+    CalendarDays,
     GraduationCap,
     LayoutDashboard,
     Users,
@@ -25,6 +26,7 @@ import {
         { href: '/admin/departments', label: 'Departamentos', icon: Building2 },
         { href: '/admin/programs', label: 'Carreras', icon: GraduationCap },
         { href: '/admin/courses', label: 'Cursos', icon: BookOpen },
+        { href: '/admin/terms', label: 'Periodos', icon: CalendarDays },
       ],
     },
   ]
